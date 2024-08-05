@@ -1,25 +1,30 @@
-function check(str, bracketsConfig) {
-  const stack = [];
-  const bracketsMap = new Map(bracketsConfig);
-  const openingBrackets = new Set(bracketsConfig.map(pair => pair[0]));
-  const sameBrackets = bracketsConfig.filter(pair => pair[0] === pair[1]).map(pair => pair[0]);
+module.exports = function check(str, bracketsConfig) {
+    const stack = [];
+  const bracketsMap = {};
+  const sameBrackets = {};
+
+  bracketsConfig.forEach(pair => {
+    bracketsMap[pair[1]] = pair[0];
+    if (pair[0] === pair[1]) {
+      sameBrackets[pair[0]] = true;
+    }
+  });
 
   for (const char of str) {
-    if (openingBrackets.has(char)) {
-      if (sameBrackets.includes(char)) {
-        if (stack.length && stack[stack.length - 1] === char) {
-          stack.pop();
-        } else {
-          stack.push(char);
-        }
+    if (sameBrackets[char]) {
+      if (stack.length && stack[stack.length - 1] === char) {
+        stack.pop();
       } else {
         stack.push(char);
       }
-    } else {
-      const last = stack.pop();
-      if (bracketsMap.get(char) !== last) {
+    } else if (bracketsMap[char]) {
+      if (stack.length && stack[stack.length - 1] === bracketsMap[char]) {
+        stack.pop();
+      } else {
         return false;
       }
+    } else {
+      stack.push(char);
     }
   }
 
